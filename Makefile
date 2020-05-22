@@ -4,14 +4,15 @@
 # e.g.,
 # make grade s=s1
 
-grade:
+grade.cont:
 	docker run -ti -v `pwd`/$(s):/autograder/submission rg-grade
+
+grade.scr:
+	docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket
 
 base-image:
 	docker build -f Dockerfile.base-image -t rg-base .
 grader-image:
 	docker build -f Dockerfile.grader-image -t rg-grade .
 
-#grade:
-#	docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket
 
