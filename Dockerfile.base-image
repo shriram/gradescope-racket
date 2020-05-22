@@ -1,0 +1,7 @@
+FROM gradescope/auto-builds
+
+RUN apt-get update -y
+RUN apt install software-properties-common -y
+RUN add-apt-repository ppa:plt/racket -y
+RUN apt-get install -y racket
+RUN apt-get clean

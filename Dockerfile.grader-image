@@ -1,0 +1,5 @@
+FROM rg-base
+
+RUN mkdir /autograder/source
+COPY autograder/run_autograder /autograder
+COPY autograder/test.rkt /autograder/source/test.rkt
