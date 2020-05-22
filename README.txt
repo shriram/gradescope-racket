@@ -1,3 +1,13 @@
+s1 = correct, BSL
+s2 = incorrect, BSL (computes cube rather than square)
+s3 = correct, racket/base
+s4 = correct, typed/racket
+s5 = incorrect, defines square instead of sq
+s6 = incorrect, run-time error
+s7 = incorrect, missing defs.rkt file
+s8 = incorrect, type errors (written in typed/racket)
+s9 = incorrect, mostly correct but run-time error when given 2
+
 The Gradescope autograder "spec" is here:
 
 https://gradescope-autograders.readthedocs.io/en/latest/specs/

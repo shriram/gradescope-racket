@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-racket source/test.rkt
+racket /autograder/source/grade.rkt
 
