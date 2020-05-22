@@ -8,9 +8,9 @@ grade:
 	docker run -ti -v `pwd`/$(s):/autograder/submission rg-grade
 
 base-image:
-	docker build -f Dockerfile.base-image -t rg-base
+	docker build -f Dockerfile.base-image -t rg-base .
 grader-image:
-	docker build -f Dockerfile.grader-image -t rg-grade
+	docker build -f Dockerfile.grader-image -t rg-grade .
 
 #grade:
 #	docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket
