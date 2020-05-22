@@ -1,3 +1,8 @@
+https://gradescope-autograders.readthedocs.io/en/latest/specs/
+https://gradescope-autograders.readthedocs.io/en/latest/getting_started/
+https://gradescope-autograders.readthedocs.io/en/latest/manual_docker/
+https://gradescope-autograders.readthedocs.io/en/latest/git_pull/
+
 s1 = correct, BSL
 s2 = incorrect, BSL (computes cube rather than square)
 s3 = correct, racket/base

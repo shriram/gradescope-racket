@@ -29,4 +29,6 @@ base-image:
 grader-image:
 	docker build -f Dockerfile.grader-image -t rg-grade .
 
+mk-zip:
+	zip -r upload.zip setup.sh run_autograder grade.rkt
 

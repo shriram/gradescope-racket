@@ -1,4 +1,4 @@
-#lang typed/racket
+#lang racket/base
 
 (define (sq n)
   (if (= n 2)

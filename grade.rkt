@@ -20,7 +20,7 @@
 		       (lambda (e)
 			 (produce-report/exit
 			  `#hasheq((score . 0)
-				   (output . ,(string-append "Loading failed with error "
+				   (output . ,(string-append "Loading failed with error\n"
 							     (exn-message e))))))])
 	  (dynamic-require `(file ,filename) #f)
 	  (module->namespace `(file ,filename)))
@@ -39,7 +39,7 @@
 		 (lambda (e)
 		   (produce-report/exit
 		    `#hasheq((score . 0)
-			     (output . ,(string-append "Run failed with error "
+			     (output . ,(string-append "Run failed with error\n"
 						       (exn-message e))))))])
 
   (extract-var sq ns)
