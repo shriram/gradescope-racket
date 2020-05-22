@@ -5,19 +5,25 @@
 (require json)
 
 (define base-filename "defs.rkt")
-(define filename (string-append "/autograder/submission" base-filename))
+(define filename (string-append "/autograder/submission/" base-filename))
 
 (define (produce-report/exit grade-hash)
   (with-output-to-file "/autograder/results/results.json"
+    #:exists 'replace
     (lambda ()
       (write-json grade-hash)))
   (exit))
 
 (define (load-ns filename)
   (if (file-exists? filename)
-      (begin
-	(dynamic-require `(file ,filename) #f)
-	(module->namespace `(file ,filename)))
+      (with-handlers ([exn:fail?
+		       (lambda (e)
+			 (produce-report/exit
+			  `#hasheq((score . 0)
+				   (output . ,(string-append "Loading failed with error "
+							     (exn-message e))))))])
+	  (dynamic-require `(file ,filename) #f)
+	  (module->namespace `(file ,filename)))
       (produce-report/exit
        `#hasheq((score . 0)
 		(output . ,(string-append "File " base-filename " not found: please check your submission"))))))

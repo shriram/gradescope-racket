@@ -19,6 +19,7 @@ grade.scr:
 	cp grade.rkt autograder/source/
 	#
 	mkdir autograder/results/
+	# docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket /bin/bash
 	docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket /autograder/run_autograder
 	cat autograder/results/results.json
 	echo " "
