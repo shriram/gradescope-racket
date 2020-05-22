@@ -1,4 +1,4 @@
-FROM gradescope/auto-builds
+FROM gradescope/auto-builds:ubuntu-18.04
 
 RUN apt-get update -y
 RUN apt install software-properties-common -y
