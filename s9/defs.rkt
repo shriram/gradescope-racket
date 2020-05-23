@@ -1,6 +1,7 @@
 #lang racket/base
 
 (define (sq n)
-  (if (= n 2)
-      (+ "hi" "bye")
-      (* n n)))
+  (cond
+    [(= n 2) (+ "hi" "bye")]
+    [(= n 1) 27]
+    [else (* n n)]))
