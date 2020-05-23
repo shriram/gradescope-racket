@@ -58,6 +58,12 @@
 		    (/ (length (filter test-success? test-results)) (length test-results)))))])
     (produce-report/exit
      `#hasheq((score . ,score)
-	      (output . ,(string-append "Passed: " (number->string (length (filter test-success? test-results)))
-					"  Failed: " (number->string (length (filter test-failure? test-results)))
-					"  Error: " (number->string (length (filter test-error? test-results)))))))))
+              (tests . ,(append
+                         (map (λ (t)
+                                `#hasheq((output
+                                          . ,(string-append "Error: " (test-result-test-case-name t)))))
+                              (filter test-error? test-results))
+                         (map (λ (t)
+                                `#hasheq((output
+                                          . ,(string-append "Wrong: " (test-result-test-case-name t)))))
+                              (filter test-failure? test-results))))))))
