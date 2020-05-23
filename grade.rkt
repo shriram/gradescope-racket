@@ -31,32 +31,39 @@
 (define-syntax extract-var
   (syntax-rules ()
     [(_ name ns)
-     (define name (eval `(,#'first-order->higher-order name) ns))]))
+     (define name
+       (with-handlers ([exn:fail?
+                        (lambda (e)
+                          (produce-report/exit
+                           `#hasheq((score . 0)
+                                    (output . ,(string-append "Run failed with error\n"
+                                                              (exn-message e))))))])
+         (eval `(,#'first-order->higher-order name) ns)))]))
 
 (define ns (load-ns filename))
 
-(with-handlers ([exn:fail?
-		 (lambda (e)
-		   (produce-report/exit
-		    `#hasheq((score . 0)
-			     (output . ,(string-append "Run failed with error\n"
-						       (exn-message e))))))])
+(extract-var sq ns)
 
-  (extract-var sq ns)
+(define-test-suite sq-tests
+  (test-equal? "0" (sq 0) 0)
+  (test-equal? "1" (sq 1) 1)
+  (test-equal? "-1" (sq -1) 1)
+  (test-equal? "2" (sq 2) 4)
+  (test-equal? "3" (sq 3) 9))
 
-  (check-equal? (sq 0) 0)
-  (check-equal? (sq 1) 1)
-  (check-equal? (sq -1) 1)
-  (check-equal? (sq 2) 4)
-  (check-equal? (sq 3) 9))
-
-(define result (test-log))
-
-(define failed (car result))
-(define total (cdr result))
-
-(produce-report/exit
- `#hasheq((score . ,(number->string
-		     (exact->inexact
-		      (* 100 (/ (- total failed) total)))))))
-
+(let ([test-results (fold-test-results cons empty sq-tests)
+                    #;(foldts-test-suite
+		     (λ (suite name before after seed) (before) seed)
+		     (λ (suite name before after seed kid-seed) (after) (append seed kid-seed))
+		     (λ (case name action seed) (cons (run-test-case name action) seed))
+		     empty
+		     sq-tests)])
+  (let ([score (number->string
+		(exact->inexact
+		 (* 100
+		    (/ (length (filter test-success? test-results)) (length test-results)))))])
+    (produce-report/exit
+     `#hasheq((score . ,score)
+	      (output . ,(string-append "Passed: " (number->string (length (filter test-success? test-results)))
+					"  Failed: " (number->string (length (filter test-failure? test-results)))
+					"  Error: " (number->string (length (filter test-error? test-results)))))))))
