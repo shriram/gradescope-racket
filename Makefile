@@ -21,8 +21,9 @@ grade.scr:
 	mkdir autograder/results/
 	# docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket /bin/bash
 	docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket /autograder/run_autograder
+	printf "\n\n"
 	cat autograder/results/results.json
-	echo " "
+	printf "\n\n"
 
 base-image:
 	docker build -f Dockerfile.base-image -t rg-base .
