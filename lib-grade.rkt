@@ -46,23 +46,26 @@
      (extract-var var-name (load-ns file-name))]))
 
 (define (generate-results test-suite)
-  (let ([test-results (fold-test-results cons empty test-suite)])
-    (let ([score (number->string
-                  (exact->inexact
-                   (* 100
-                      (/ (length (filter test-success? test-results)) (length test-results)))))])
-      (produce-report/exit
-       `#hasheq((score . ,score)
-                (tests . ,(append
-                           (map (λ (t)
-                                  `#hasheq((output
-                                            . ,(string-append "Execution error in test named «"
-                                                              (test-result-test-case-name t)
-                                                              "»"))))
-                                (filter test-error? test-results))
-                           (map (λ (t)
-                                  `#hasheq((output
-                                            . ,(string-append "Incorrect answer from test named «"
-                                                              (test-result-test-case-name t)
-                                                              "»"))))
-                                (filter test-failure? test-results)))))))))
+  (let* ([test-results (fold-test-results cons empty test-suite)]
+         [raw-score (* 100
+                       (/ (length (filter test-success? test-results)) (length test-results)))]
+         [score-str (number->string (exact->inexact raw-score))])
+    (if (= raw-score 100)
+        (produce-report/exit
+         `#hasheq((score . "100")
+                  (output . "Looks shipshape, all tests passed, mate!")))
+        (produce-report/exit
+         `#hasheq((score . ,score-str)
+                  (tests . ,(append
+                             (map (λ (t)
+                                    `#hasheq((output
+                                              . ,(string-append "Execution error in test named «"
+                                                                (test-result-test-case-name t)
+                                                                "»"))))
+                                  (filter test-error? test-results))
+                             (map (λ (t)
+                                    `#hasheq((output
+                                              . ,(string-append "Incorrect answer from test named «"
+                                                                (test-result-test-case-name t)
+                                                                "»"))))
+                                  (filter test-failure? test-results)))))))))
