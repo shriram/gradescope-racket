@@ -51,13 +51,7 @@
   (test-equal? "2" (sq 2) 4)
   (test-equal? "3" (sq 3) 9))
 
-(let ([test-results (fold-test-results cons empty sq-tests)
-                    #;(foldts-test-suite
-		     (λ (suite name before after seed) (before) seed)
-		     (λ (suite name before after seed kid-seed) (after) (append seed kid-seed))
-		     (λ (case name action seed) (cons (run-test-case name action) seed))
-		     empty
-		     sq-tests)])
+(let ([test-results (fold-test-results cons empty sq-tests)])
   (let ([score (number->string
 		(exact->inexact
 		 (* 100
