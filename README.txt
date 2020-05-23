@@ -11,7 +11,7 @@ s5 = incorrect, defines square instead of sq
 s6 = incorrect, run-time error
 s7 = incorrect, missing defs.rkt file
 s8 = incorrect, type errors (written in typed/racket)
-s9 = incorrect, mostly correct but run-time error when given 2
+s9 = incorrect, mostly correct but wrong answer for 1 and run-time error for 2
 
 The Gradescope autograder "spec" is here:
 
