@@ -4,8 +4,8 @@
 
 (require "lib-grade.rkt")
 
-(define-var add-one from "defs.rkt")
-(define-var sub-one from "defs.rkt")
+(define-var add-one from "code.rkt")
+(define-var sub-one from "code.rkt")
 
 (define-test-suite tests
   (test-equal? "+1 0" (add-one 0) 1)
