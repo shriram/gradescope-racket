@@ -21,7 +21,8 @@ Assuming you will use Docker locally:
 can use for testing locally.
 
 2. When you're ready to test, run `make s=<dir>`, where `<dir>` is the
-directory that houses the (mock) student submissions.
+sub-directory of `tests` that houses the (mock) student
+submission. See examples below.
 
 If you really know what you're doing, `make grader-image` may be of
 use. You'll know what to do with it. (I may document this better
