@@ -19,15 +19,15 @@ grade:
 	#
 	mkdir autograder/results/
 	# docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket /bin/bash
-	docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/tests/$(s):/autograder/submission gr-base /autograder/run_autograder
+	docker run -ti -v `pwd`/tests/$(s):/autograder/submission gradescope-racket /autograder/run_autograder
 	printf "\n\n"
 	cat autograder/results/results.json
 	printf "\n\n"
 
 base-image:
-	docker build -f Dockerfile.base-image -t gr-base .
+	docker build -f Dockerfile.base-image -t gradescope-racket-base .
 grader-image:
-	docker build -f Dockerfile.grader-image -t gr-grade .
+	docker build -f Dockerfile.grader-image -t shriramk/gradescope-racket .
 
 zip:
 	zip -r upload-to-gradescope.zip setup.sh run_autograder grade.rkt lib-grade.rkt
