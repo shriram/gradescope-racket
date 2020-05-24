@@ -1,6 +1,5 @@
-FROM rg-base
+FROM gradescope-racket-base
 
 RUN mkdir /autograder/source
-COPY run_autograder /autograder
-COPY grade.rkt /autograder/source/grade.rkt
-COPY lib-grade.rkt /autograder/source/lib-grade.rkt
+COPY run_autograder /autograder/
+COPY grade.rkt lib-grade.rkt /autograder/source/
