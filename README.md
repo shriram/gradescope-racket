@@ -101,10 +101,11 @@ Gradescope will build a Docker image for you.
 When it's ready, you can upload sample submissions and see the output
 from the autograder.
 
-# Example
+# Examples
 
 The directory `tests/sq/` contains mock submissions of a `sq` function
-that squares its argument, and `grade-sq.rkt` a test suite for it:
+that squares its argument, and `grade-sq.rkt` a test suite for it. So
+install that test suite, then check the several mock submissions:
 ```
 cp grade-sq.rkt grade.rkt
 make s=sq/s1
