@@ -159,3 +159,8 @@ Gradescope's "specs" are currently at:
 <https://gradescope-autograders.readthedocs.io/en/latest/specs/>
 <https://gradescope-autograders.readthedocs.io/en/latest/manual_docker/>
 <https://gradescope-autograders.readthedocs.io/en/latest/git_pull/>
+
+## Acknowledgments
+
+Thanks to Matthew Flatt, Alex Harsanyi, David Storrs, Alexis King,
+Matthias Felleisen, Joe Politz, and James Tompkin.
