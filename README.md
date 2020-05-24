@@ -1,3 +1,5 @@
+# Auto-Grading Racket Code in Gradescope
+
 This repository enables educators to autograde student submissions
 written in Racket on [Gradescope](https://www.gradescope.com/).
 
@@ -5,7 +7,7 @@ At least in its current structure, you will want to make a different
 copy of this code for each assignment. Since this codebase is very
 lightweight, I don't anticipate changing that in the near future.
 
-# Docker
+## Docker
 
 Gradescope relies on Docker. You don't strictly have to know how to
 use Docker yourself, but it certainly helps.
@@ -29,7 +31,7 @@ use. You'll know what to do with it. (I may document this better
 later, but right now it's a low priority because there are other, more
 pressing issues to address.)
 
-# Creating a Test Suite
+## Creating a Test Suite
 
 The library currently depends on `rackunit`. If you're only used to
 the student language levels, don't worry, it's pretty similar. Stick
@@ -58,7 +60,7 @@ of it.
 For now, you can have only one test suite per file/grading run. The
 suite can, of course, have as many tests as you want.
 
-# Naming Tests
+## Naming Tests
 
 Note that all the `check-*` forms take a *name* for the test. (This is
 a difference from the student languages.) To name it wisely, it is
@@ -87,7 +89,7 @@ of these, from least to most informative:
 Once you've created your test suite, you will probably want to test it
 locally first. This requires Docker. See the instructions above.
 
-# Deploying to Gradescope
+## Deploying to Gradescope
 
 Run `make zip` to generate the Zip file that you upgrade to
 Gradescope. If you have broken your grader into multiple files, be
@@ -101,7 +103,7 @@ Gradescope will build a Docker image for you.
 When it's ready, you can upload sample submissions and see the output
 from the autograder.
 
-# Examples
+## Examples
 
 The directory `tests/sq/` contains mock submissions of a `sq` function
 that squares its argument, and `grade-sq.rkt` a test suite for it. So
@@ -123,7 +125,7 @@ cp grade-two-funs.rkt grade.rkt
 make s=two-funs/s1
 ```
 
-# Scoring
+## Scoring
 
 Gradescope demands that every submission be given a numeric score:
 either one in aggregrate or one per test. I find this system quite
@@ -134,11 +136,11 @@ number of tests. That's it. Someday I may look into adding weights for
 tests, etc., but I'm really not excited about any of it. Either way,
 please give your students instructions on how to interpret the numbers.
 
-# Open Issues
+## Open Issues
 
 See <https://github.com/shriram/gradescope-racket/issues/>.
 
-# Is This Current?
+## Is This Current?
 
 This code has been tested with Gradescope in late May 23, 2020, using
 Racket 7.7. Since Gradescope's APIs are in some flux, you may
@@ -149,7 +151,7 @@ upgrade this system.
 
 This code does not have any non-vanilla-Racket dependencies.
 
-# Gradescope Specs
+## Gradescope Specs
 
 Gradescope's "specs" are currently at:
 
