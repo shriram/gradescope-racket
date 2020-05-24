@@ -79,7 +79,7 @@ testing a `sq` function that squares its input, your could write any
 of these, from least to most informative:
 ```
   (test-equal? "" (sq -1) 1)
-  (test-equal? "negative" (sq -1) 1)
+  (test-equal? "a negative number" (sq -1) 1)
   (test-equal? "-1" (sq -1) 1)
 ```
 
