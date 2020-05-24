@@ -156,6 +156,9 @@ This code does not have any non-vanilla-Racket dependencies.
 Gradescope's "specs" are currently at:
 
 <https://gradescope-autograders.readthedocs.io/en/latest/getting_started/>
+
 <https://gradescope-autograders.readthedocs.io/en/latest/specs/>
+
 <https://gradescope-autograders.readthedocs.io/en/latest/manual_docker/>
+
 <https://gradescope-autograders.readthedocs.io/en/latest/git_pull/>
