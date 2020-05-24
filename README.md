@@ -130,7 +130,7 @@ make s=two-funs/s1
 
 Gradescope demands that every submission be given a numeric score:
 either one in aggregrate or one per test. I find this system quite
-frustrating; it imposes a numerics-driven pedagogy that don't embrace
+frustrating; it imposes a numerics-driven pedagogy that I don't embrace
 on many assignments. Therefore, for now the score given for the
 assignment is simple: the number of passing tests divided by the total
 number of tests. That's it. Someday I may look into adding weights for
