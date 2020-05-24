@@ -60,6 +60,10 @@ of it.
 For now, you can have only one test suite per file/grading run. The
 suite can, of course, have as many tests as you want.
 
+Once you've created your test suite, you will probably want to test it
+locally first. This requires Docker. See the instructions above. If
+you're skipping local testing, you can move on to deployment.
+
 ## Naming Tests
 
 Note that all the `check-*` forms take a *name* for the test. (This is
@@ -85,9 +89,6 @@ of these, from least to most informative:
   (test-equal? "a negative number" (sq -1) 1)
   (test-equal? "-1" (sq -1) 1)
 ```
-
-Once you've created your test suite, you will probably want to test it
-locally first. This requires Docker. See the instructions above.
 
 ## Deploying to Gradescope
 
