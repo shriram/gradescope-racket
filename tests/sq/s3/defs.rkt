@@ -1,3 +1,5 @@
 #lang racket/base
 
-(define (sq n) (* n n))
+(provide [rename-out (square sq)])
+
+(define (square n) (* n n))

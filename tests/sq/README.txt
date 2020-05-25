@@ -1,6 +1,6 @@
 s1 = correct;   implemented in BSL
 s2 = incorrect; implemented in BSL (computes cube rather than square)
-s3 = correct;   implemented in racket/base
+s3 = correct;   implemented in racket/base; exports `square` as `sq`
 s4 = correct;   implemented in typed/racket
 s5 = incorrect; defines `square` instead of `sq`
 s6 = incorrect; run-time error
