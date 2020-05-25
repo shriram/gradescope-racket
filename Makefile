@@ -10,16 +10,14 @@
 # Grade with reasonable simulation of Gradescope's script setup
 grade:
 	rm -rf autograder
-	#
 	mkdir autograder/
-	cp run_autograder autograder/
-	#
-	mkdir autograder/source/
-	cp grade.rkt lib-grade.rkt autograder/source/
-	#
 	mkdir autograder/results/
+	#
 	# docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket /bin/bash
-	docker run -ti -v `pwd`/tests/$(s):/autograder/submission shriramk/gradescope-racket /autograder/run_autograder
+	docker run -ti \
+		-v `pwd`/tests/$(s):/autograder/submission \
+		-v `pwd`/autograder/results:/autograder/results \
+		shriramk/gradescope-racket /autograder/run_autograder
 	printf "\n\n"
 	cat autograder/results/results.json
 	printf "\n\n"
