@@ -19,7 +19,7 @@ grade:
 	#
 	mkdir autograder/results/
 	# docker run -ti -v `pwd`/autograder:/autograder -v `pwd`/$(s):/autograder/submission ubuntu-racket /bin/bash
-	docker run -ti -v `pwd`/tests/$(s):/autograder/submission gradescope-racket /autograder/run_autograder
+	docker run -ti -v `pwd`/tests/$(s):/autograder/submission shriramk/gradescope-racket /autograder/run_autograder
 	printf "\n\n"
 	cat autograder/results/results.json
 	printf "\n\n"
