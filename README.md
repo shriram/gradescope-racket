@@ -1,7 +1,7 @@
 # Auto-Grading Racket Code in Gradescope
 
 This repository enables educators to autograde student submissions
-written in Racket on [Gradescope](https://www.gradescope.com/).
+written in [Racket](https://racket-lang.org/) on [Gradescope](https://www.gradescope.com/).
 
 At least in its current structure, you will want to make a different
 copy of this code for each assignment. Since this codebase is very
