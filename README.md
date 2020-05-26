@@ -19,17 +19,21 @@ and if you make a mistake, you'll have to do it all over again.
 
 Assuming you will use Docker locally:
 
-1. Make a local image: `make base-image`. This creates an image you
-can use for testing locally.
+1. Make a local image for testing:
+```
+make base-image
+make grader-image
+```
+There are two images due to staging. The first simply installs Racket,
+which is unlikely to change, but the second installs the
+assignment-specific grader content, which is likely to change quite a
+bit as you're developing it. We don't have to name both images, but it
+might make it a bit clearer to navigate (and it's sometimes also
+useful to go into a pristine `base-image` to test some things).
 
-2. When you're ready to test, run `make s=<dir>`, where `<dir>` is the
+2. When you're ready to test, run `make grade s=<dir>`, where `<dir>` is the
 sub-directory of `tests` that houses the (mock) student
 submission. See examples below.
-
-If you really know what you're doing, `make grader-image` may be of
-use. You'll know what to do with it. (I may document this better
-later, but right now it's a low priority because there are other, more
-pressing issues to address.)
 
 ## Creating a Test Suite
 
@@ -61,8 +65,9 @@ For now, you can have only one test suite per file/grading run. The
 suite can, of course, have as many tests as you want.
 
 Once you've created your test suite, you will probably want to test it
-locally first. This requires Docker. See the instructions above. If
-you're skipping local testing, you can move on to deployment.
+locally first. This requires you to have Docker installed (but not
+necessarily know much about how to use it). See the instructions
+above. If you're skipping local testing, you can move on to deployment.
 
 ## Naming Tests
 
