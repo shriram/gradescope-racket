@@ -13,37 +13,33 @@
       (write-json grade-hash)))
   (exit))
 
-(define-syntax extract-var
-  (syntax-rules ()
-    [(_ name ns)
-     (define name
+(define-syntax define-var
+  (syntax-rules (from)
+    [(_ var-name from base-filename)
+     (define var-name
        (with-handlers ([exn:fail?
                         (lambda (e)
                           (produce-report/exit
                            `#hasheq((score . 0)
                                     (output . ,(string-append "Run failed with error\n"
                                                               (exn-message e))))))])
-         (eval `(,#'first-order->higher-order name) ns)))]))
-
-(define (load-ns base-filename)
-  (define filename (string-append "/autograder/submission/" base-filename))
-  (if (file-exists? filename)
-      (with-handlers ([exn:fail?
-		       (lambda (e)
-			 (produce-report/exit
-			  `#hasheq((score . 0)
-				   (output . ,(string-append "Loading failed with error\n"
-							     (exn-message e))))))])
-	  (dynamic-require `(file ,filename) #f)
-	  (module->namespace `(file ,filename)))
-      (produce-report/exit
-       `#hasheq((score . 0)
-		(output . ,(string-append "File " base-filename " not found: please check your submission"))))))
-
-(define-syntax define-var
-  (syntax-rules (from)
-    [(_ var-name from file-name)
-     (extract-var var-name (load-ns file-name))]))
+         (define bfn base-filename)
+         (define filename (string-append "/autograder/submission/" bfn))
+         (if (file-exists? filename)
+             (with-handlers ([exn:fail?
+                              (lambda (e)
+                                (produce-report/exit
+                                 `#hasheq((score . 0)
+                                          (output . ,(string-append "Loading failed with error\n"
+                                                                    (exn-message e))))))])
+               (dynamic-require `(file ,filename) 'var-name
+                                (thunk
+                                 (dynamic-require `(file ,filename) #f)
+                                 (define ns (module->namespace `(file ,filename)))
+                                 (eval `(,#'first-order->higher-order var-name) ns))))
+             (produce-report/exit
+              `#hasheq((score . 0)
+                       (output . ,(string-append "File " bfn " not found: please check your submission")))))))]))
 
 (define (generate-results test-suite)
   (let* ([test-results (fold-test-results cons empty test-suite)]
