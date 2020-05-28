@@ -24,12 +24,13 @@ Assuming you will use Docker locally:
 make base-image
 make grader-image
 ```
-There are two images due to staging. The first simply installs Racket,
-which is unlikely to change, but the second installs the
-assignment-specific grader content, which is likely to change quite a
-bit as you're developing it. We don't have to name both images, but it
-might make it a bit clearer to navigate (and it's sometimes also
-useful to go into a pristine `base-image` to test some things).
+   There are two images due to staging. The first simply installs
+   Racket, which is unlikely to change, but the second installs the
+   assignment-specific grader content, which is likely to change quite
+   a bit as you're developing it. We don't have to name both images,
+   but it might make it a bit clearer to navigate (and it's sometimes
+   also useful to go into a pristine `base-image` to test some
+   things).
 
 2. When you're ready to test, run `make grade s=<dir>`, where `<dir>` is the
 sub-directory of `tests` that houses the (mock) student
