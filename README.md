@@ -95,6 +95,31 @@ of these, from least to most informative:
   (test-equal? "-1" (sq -1) 1)
 ```
 
+## Why `define-var`
+
+You might wonder why you have to use `define-var` to name the
+variables you want from the module, especially if the module already
+exports them. (If you don't use `define-var` you'll get an unbound
+identifier error.) There are two reasons:
+
+1. Some languages, like Beginning Student Language, do not export
+   names. Therefore, the autograder has to “extract” them from the
+   module, and wouldn't know which ones to extract.
+
+2. Simply accepting all the names from a module may be dangerous: a
+   malicious student could export names that override the autograder's
+   functionality (since this code is public, after all), thereby
+   giving themselves they grade they want, not the one they deserve
+   (unless it's a course on malicious behavior, in which case, they've
+   earned whatever they award).
+
+`define-var` lets you carefully limit which names the student provided
+you actually end up with. It will first look for the exported name
+and, only if it isn't found, extract from the module. This avoids the
+slight nuisance of having to return a student's assignment for having
+forgotten to export a name. (If this behavior isn't desired, talk to
+me and I can help you edit the source.)
+
 ## Deploying to Gradescope
 
 Run `make zip` to generate the Zip file that you upgrade to
