@@ -72,7 +72,7 @@ above. If you're skipping local testing, you can move on to deployment.
 
 ## Naming Tests
 
-Note that all the `check-*` forms take a *name* for the test. (This is
+Note that all the `test-*` forms take a *name* for the test. (This is
 a difference from the student languages.) To name it wisely, it is
 important to understand how this name is used.
 
