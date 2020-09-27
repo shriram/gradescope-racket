@@ -57,7 +57,8 @@ There are three files to help you create your own grader:
 
 - a template file, which doesn't itself work: `grade-template.rkt`
 
-- two working example files: `grade-sq.rkt`, and `grade-two-funs.rkt`
+- three working example files: `grade-sq.rkt`, `grade-two-funs.rkt`,
+  and `grade-macros.rkt`
 
 If you use the template, be sure to edit only the `UPPER-CASE` parts
 of it.
@@ -121,6 +122,29 @@ slight nuisance of having to return a student's assignment for having
 forgotten to export a name. (If this behavior isn't desired, talk to
 me and I can help you edit the source.)
 
+## Why `mirror-macro`
+
+Macros are not values. Therefore, we can't simply extract the macro as
+a value from the student's module. Instead, the library sets up a
+mirror of that macro in the testing module. Note that it currently has
+the following consequences (some are weaknesses, others aren't as clear):
+
+- All evaluation happens in the student's module. Thus, all references
+  to names are resolved in that module. This means a local helper
+  function cannot be referenced directly.
+
+- Because of the way `mirror-macro` is written, the mirroring step
+  takes place each time a test *uses* a macro. This does not seem to
+  be prohibitively costly, but it is at least annoying. If this proves
+  to be a performance problem, let me know.
+
+- Because this code goes into the student's module, it uses the
+  namespace local to that module, not the names exported. Practically
+  speaking, this means it disregards `rename-out` in the student's
+  module. Since we don't expect students will be using this feature if
+  they are still at the level where this library makes sense, this
+  should not be much of a problem.
+
 ## Deploying to Gradescope
 
 Run `make zip` to generate the Zip file that you upgrade to
@@ -158,6 +182,17 @@ cp grade-two-funs.rkt grade.rkt
 make grader-image
 make s=two-funs/s1
 ```
+
+The directory `tests/macros/` illustrates that we can also test for
+macros; `grade-macros.rkt` is its test suite:
+```
+cp grade-macros.rkt grade.rkt
+make grader-image
+make s=macros/s1
+```
+(In this directory, student programs are purposely called
+`student-code.rkt` to show that you can choose whatever names you
+want; they don't have to be `code.rkt`.)
 
 ## Scoring
 

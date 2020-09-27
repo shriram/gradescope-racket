@@ -6,6 +6,8 @@
 
 (provide produce-report/exit define-var generate-results)
 
+(provide mirror-macro)
+
 (define (produce-report/exit grade-hash)
   (with-output-to-file "/autograder/results/results.json"
     #:exists 'replace
@@ -41,6 +43,36 @@
               `#hasheq((score . 0)
                        (output . ,(string-append "File " bfn " not found: please check your submission")))))))]))
 
+(define-syntax mirror-macro
+  (syntax-rules (from)
+    [(_ macro-name from base-filename)
+     (define-syntax macro-name
+       (syntax-rules ()
+         [(_ E (... ...))
+          (with-handlers ([exn:fail?
+                           (lambda (e)
+                             (produce-report/exit
+                              `#hasheq((score . 0)
+                                       (output . ,(string-append "Run failed with error\n"
+                                                                 (exn-message e))))))])
+            (define bfn base-filename)
+            (define filename (string-append "/autograder/submission/" bfn))
+            (if (file-exists? filename)
+                (with-handlers ([exn:fail?
+                                 (lambda (e)
+                                   (produce-report/exit
+                                    `#hasheq((score . 0)
+                                             (output . ,(string-append "Loading failed with error\n"
+                                                                       (exn-message e))))))])
+                  (eval '(macro-name E (... ...))
+                        (module->namespace
+                         (begin
+                           (dynamic-require `(file , filename) #f)
+                           `(file ,filename)))))
+                (produce-report/exit
+                 `#hasheq((score . 0)
+                          (output . ,(string-append "File " bfn " not found: please check your submission"))))))]))]))
+                  
 (define (generate-results test-suite)
   (let* ([test-results (fold-test-results cons empty test-suite)]
          [raw-score (* 100
