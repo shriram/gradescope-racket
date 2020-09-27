@@ -142,6 +142,7 @@ that squares its argument, and `grade-sq.rkt` a test suite for it. So
 install that test suite, then check the several mock submissions:
 ```
 cp grade-sq.rkt grade.rkt
+make grader-image
 make s=sq/s1
 make s=sq/s2
 ...
@@ -154,6 +155,7 @@ The directory `tests/two-funs/` illustrates that we can test more than
 one thing from a program; `grade-two-funs.rkt` is its test suite:
 ```
 cp grade-two-funs.rkt grade.rkt
+make grader-image
 make s=two-funs/s1
 ```
 
