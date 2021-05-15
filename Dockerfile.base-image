@@ -5,3 +5,5 @@ RUN apt-get install software-properties-common -y
 RUN add-apt-repository ppa:plt/racket -y
 RUN apt-get install -y racket
 RUN apt-get clean
+RUN raco setup --doc-index --force-user-docs
+
