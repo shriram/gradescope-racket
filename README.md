@@ -147,7 +147,7 @@ the following consequences (some are weaknesses, others aren't as clear):
 
 ## Deploying to Gradescope
 
-Run `make zip` to generate the Zip file that you upgrade to
+Run `make zip` to generate the Zip file that you upload to
 Gradescope. If you have broken your grader into multiple files, be
 sure to edit the Makefile to add those other files to the archive as
 well. (And don't forget to add them to the repository, too!)
