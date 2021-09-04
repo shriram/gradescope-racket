@@ -28,5 +28,8 @@ grader-image:
 	docker build -f Dockerfile.grader-image -t shriramk/gradescope-racket .
 
 zip:
+	rm -rf setup.sh
+	echo '#!/bin/bash' > setup.sh
+	tail -n +2 Dockerfile.base-image | cut -f 2- -d ' ' >> setup.sh
 	zip -r upload-to-gradescope.zip setup.sh run_autograder grade.rkt lib-grade.rkt
 
