@@ -72,7 +72,7 @@
                 (produce-report/exit
                  `#hasheq((score . 0)
                           (output . ,(string-append "File " bfn " not found: please check your submission"))))))]))]))
-                  
+
 (define (generate-results test-suite)
   (let* ([test-results (fold-test-results cons empty test-suite)]
          [raw-score (* 100
