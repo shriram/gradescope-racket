@@ -63,8 +63,8 @@ There are three files to help you create your own grader:
 If you use the template, be sure to edit only the `UPPER-CASE` parts
 of it.
 
-For now, you can have only one test suite per file/grading run. The
-suite can, of course, have as many tests as you want.
+You can have only one test suite per file/grading run, but test suites can be
+nested so this does not impose much of a limitation.
 
 Once you've created your test suite, you will probably want to test it
 locally first. This requires you to have Docker installed (but not
@@ -96,6 +96,21 @@ of these, from least to most informative:
   (test-equal? "a negative number" (sq -1) 1)
   (test-equal? "-1" (sq -1) 1)
 ```
+
+Test suites can also have names, and be nested. For example:
+```
+(test-suite
+  "Test suite 1"
+  (test-equal? "" (sq -1) 1)
+  (test-suite
+    "Tricky Tests"
+    (test-equal? "-1" (sq -1) 1)))
+```
+
+When names suites have names, the names of test suites and their tests are
+appended hierarchically when reporting test failures and errors to GradeScope.
+In the above example, if the tricky test fails, then the test will report `Test
+suite 1:Tricky Tests:-1` failed.
 
 ## Why `define-var`
 
