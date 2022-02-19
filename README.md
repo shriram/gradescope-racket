@@ -22,7 +22,7 @@ Assuming you will use Docker locally:
 1. Make a local image for testing:
 ```
 make base-image
-make grader-image
+make grader-image a=<tag>
 ```
    There are two images due to staging. The first simply installs
    Racket, which is unlikely to change, but the second installs the
@@ -32,9 +32,9 @@ make grader-image
    also useful to go into a pristine `base-image` to test some
    things).
 
-2. When you're ready to test, run `make grade s=<dir>`, where `<dir>` is the
-sub-directory of `tests` that houses the (mock) student
-submission. See examples below.
+2. When you're ready to test, run `make grade a=<tag> s=<dir>`, where `<dir>` is the
+sub-directory of `tests` that houses the (mock) student submission, and `<tag>`
+is the assignment tag on the grader scripts. See examples below.
 
 ## Creating a Test Suite
 
@@ -48,10 +48,11 @@ up more
 The former work well in the presence of run-time errors caused by a
 check. The latter do not, so one erroneous test can truncate grading.
 
-Create a file called (exactly) `grade.rkt`. (Leave all the other files
-alone unless you really know what you're doing.) The repo
-intentionally does not contain a file by that name. Be sure to add it
-to your version of the repo, so that you don't lose it!
+Create a file named `grade-<tag>.rkt`. (Leave all the other files
+alone unless you really know what you're doing.)
+File names of this format can be automatically managed by `Makefile` and
+installed into Docker container and Gradescope setup script using the `a=<tag>`
+input.
 
 There are three files to help you create your own grader:
 
@@ -162,7 +163,7 @@ the following consequences (some are weaknesses, others aren't as clear):
 
 ## Deploying to Gradescope
 
-Run `make zip` to generate the Zip file that you upload to
+Run `make zip a=<tag>` to generate the Zip file that you upload to
 Gradescope. If you have broken your grader into multiple files, be
 sure to edit the Makefile to add those other files to the archive as
 well. (And don't forget to add them to the repository, too!)
@@ -180,30 +181,29 @@ The directory `tests/sq/` contains mock submissions of a `sq` function
 that squares its argument, and `grade-sq.rkt` a test suite for it. So
 install that test suite, then check the several mock submissions:
 ```
-cp grade-sq.rkt grade.rkt
-make grader-image
-make s=sq/s1
-make s=sq/s2
+make grader-image a=sq
+make a=sq s=sq/s1
+make a=sq s=sq/s2
 ...
 ```
 where `s1` is the first student submission, `s2` is the second,
 etc. Focus on the JSON output at the end of these runs. See
 `tests/sq/README.txt` to understand how the submissions differ.
 
+The default `Makefile` target (`grade`) will automatically try to rebuild the
+grader-image when necessary, so running `make grader-image` is probably not
+necessary.
+
 The directory `tests/two-funs/` illustrates that we can test more than
 one thing from a program; `grade-two-funs.rkt` is its test suite:
 ```
-cp grade-two-funs.rkt grade.rkt
-make grader-image
-make s=two-funs/s1
+make a=two-funs s=two-funs/s1
 ```
 
 The directory `tests/macros/` illustrates that we can also test for
 macros; `grade-macros.rkt` is its test suite:
 ```
-cp grade-macros.rkt grade.rkt
-make grader-image
-make s=macros/s1
+make a=two-funs s=macros/s1
 ```
 (In this directory, student programs are purposely called
 `student-code.rkt` to show that you can choose whatever names you
