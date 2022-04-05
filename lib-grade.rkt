@@ -4,7 +4,7 @@
 (require rackunit)
 (require json)
 
-(provide produce-report/exit define-var generate-results)
+(provide produce-report/exit define-var generate-results generate-results/hash)
 
 (provide mirror-macro)
 
@@ -74,6 +74,11 @@
                           (output . ,(string-append "File " bfn " not found: please check your submission"))))))]))]))
 
 (define (generate-results test-suite)
+  (produce-report/exit
+   (generate-results/hash
+    test-suite)))
+
+(define (generate-results/hash test-suite)
   (struct fold-state (successes errors failures names) #:transparent)
 
   (define init-state (fold-state (list) (list) (list) (list)))
@@ -135,29 +140,27 @@
                           (fold-state-total-results test-results)))]
          [score-str (number->string (exact->inexact raw-score))])
     (if (= raw-score 100)
-        (produce-report/exit
-         `#hasheq((score . "100")
-                  (output . "Looks shipshape, all tests passed, mate!")))
-        (produce-report/exit
-         `#hasheq((score . ,score-str)
-                  (tests . ,(append
-                             (map (λ (name)
-                                    `#hasheq((output
-                                              . ,(cond
-                                                   [name =>
-                                                    (lambda (test-case-name)
-                                                      (string-append "Execution error in test named «"
-                                                                     test-case-name
-                                                                     "»"))]
-                                                   [else "Execution error in unnamed test"]))))
-                                  (fold-state-errors test-results))
-                             (map (λ (name)
-                                    `#hasheq((output
-                                              . ,(cond
-                                                   [name =>
-                                                    (lambda (test-case-name)
-                                                      (string-append "Incorrect answer from test named «"
-                                                                     test-case-name
-                                                                     "»"))]
-                                                   [else "Incorrect answer from unnamed test"]))))
-                                  (fold-state-failures test-results)))))))))
+        `#hasheq((score . 100)
+                 (output . "Looks shipshape, all tests passed, mate!"))
+        `#hasheq((score . ,score-str)
+                 (tests . ,(append
+                            (map (λ (name)
+                                   `#hasheq((output
+                                             . ,(cond
+                                                  [name =>
+                                                        (lambda (test-case-name)
+                                                          (string-append "Execution error in test named «"
+                                                                         test-case-name
+                                                                         "»"))]
+                                                  [else "Execution error in unnamed test"]))))
+                                 (fold-state-errors test-results))
+                            (map (λ (name)
+                                   `#hasheq((output
+                                             . ,(cond
+                                                  [name =>
+                                                        (lambda (test-case-name)
+                                                          (string-append "Incorrect answer from test named «"
+                                                                         test-case-name
+                                                                         "»"))]
+                                                  [else "Incorrect answer from unnamed test"]))))
+                                 (fold-state-failures test-results))))))))
