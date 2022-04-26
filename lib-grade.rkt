@@ -22,7 +22,7 @@
        (with-handlers ([exn:fail?
                         (lambda (e)
                           (produce-report/exit
-                           `#hasheq((score . 0)
+                           `#hasheq((score . "0")
                                     (output . ,(string-append "Run failed with error\n"
                                                               (exn-message e))))))])
          (define bfn base-filename)
@@ -31,7 +31,7 @@
              (with-handlers ([exn:fail?
                               (lambda (e)
                                 (produce-report/exit
-                                 `#hasheq((score . 0)
+                                 `#hasheq((score . "0")
                                           (output . ,(string-append "Loading failed with error\n"
                                                                     (exn-message e))))))])
                (dynamic-require `(file ,filename) 'var-name
@@ -40,7 +40,7 @@
                                  (define ns (module->namespace `(file ,filename)))
                                  (eval `(,#'first-order->higher-order var-name) ns))))
              (produce-report/exit
-              `#hasheq((score . 0)
+              `#hasheq((score . "0")
                        (output . ,(string-append "File " bfn " not found: please check your submission")))))))]))
 
 (define-syntax mirror-macro
@@ -52,7 +52,7 @@
           (with-handlers ([exn:fail?
                            (lambda (e)
                              (produce-report/exit
-                              `#hasheq((score . 0)
+                              `#hasheq((score . "0")
                                        (output . ,(string-append "Run failed with error\n"
                                                                  (exn-message e))))))])
             (define bfn base-filename)
@@ -61,7 +61,7 @@
                 (with-handlers ([exn:fail?
                                  (lambda (e)
                                    (produce-report/exit
-                                    `#hasheq((score . 0)
+                                    `#hasheq((score . "0")
                                              (output . ,(string-append "Loading failed with error\n"
                                                                        (exn-message e))))))])
                   (eval '(macro-name E (... ...))
@@ -70,7 +70,7 @@
                            (dynamic-require `(file , filename) #f)
                            `(file ,filename)))))
                 (produce-report/exit
-                 `#hasheq((score . 0)
+                 `#hasheq((score . "0")
                           (output . ,(string-append "File " bfn " not found: please check your submission"))))))]))]))
 
 (define (generate-results test-suite)
@@ -140,7 +140,7 @@
                           (fold-state-total-results test-results)))]
          [score-str (number->string (exact->inexact raw-score))])
     (if (= raw-score 100)
-        `#hasheq((score . 100)
+        `#hasheq((score . "100")
                  (output . "Looks shipshape, all tests passed, mate!"))
         `#hasheq((score . ,score-str)
                  (tests . ,(append
