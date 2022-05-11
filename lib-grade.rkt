@@ -132,9 +132,9 @@
      (length (fold-state-errors state))
      (length (fold-state-failures state))))
 
-  (let* ([test-results (fold-test-results add-result init-state test-suite
-                                          #:fdown push-suite-name
-                                          #:fup pop-suite-name)]
+  (let* ([test-results (call/timeout (thunk (fold-test-results add-result init-state test-suite
+                                                               #:fdown push-suite-name
+                                                               #:fup pop-suite-name)))]
          [raw-score (* 100
                        (/ (length (fold-state-successes test-results))
                           (fold-state-total-results test-results)))]
@@ -164,3 +164,17 @@
                                                                          "»"))]
                                                   [else "Incorrect answer from unnamed test"]))))
                                  (fold-state-failures test-results))))))))
+
+;; call/timeout : {X} [-> X] Real -> X
+;; produces the result of calling the given thunk, but sends a breaks after timeout-in-seconds
+;; defaults to a one second timeout
+(define (call/timeout thunk #:timeout-in-seconds [timeout-in-seconds 1])
+  (define results-channel (make-channel)) 
+  (define thd (thread (λ () (channel-put
+                             results-channel
+                             (thunk)))))
+  (sync/timeout timeout-in-seconds thd)  
+  (break-thread thd)
+  (define results (channel-get results-channel))
+  (thread-wait thd)
+  results)
