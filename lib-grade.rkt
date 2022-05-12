@@ -3,13 +3,13 @@
 (require lang/prim)
 (require rackunit)
 (require json)
-(require racket/async-channel)
+(require racket/engine)
 
 (provide produce-report/exit define-var generate-results generate-results/hash timeout-in-seconds)
 
 (provide mirror-macro)
 
-;; Determines the time limit to generate results for a test-suite in seconds, #f represents no timeout (default).
+;; Determines the time limit for generate in seconds, #f represents no timeout (default).
 (define timeout-in-seconds (make-parameter #f))
 
 (define (produce-report/exit grade-hash)
@@ -136,9 +136,20 @@
      (length (fold-state-errors state))
      (length (fold-state-failures state))))
 
-  (let* ([test-results (call/timeout (λ () (fold-test-results add-result init-state test-suite
-                                                              #:fdown push-suite-name
-                                                              #:fup pop-suite-name)))]
+  ;; run-test-case/timeout : (U String #f) [-> Any] Event -> TestResult
+  ;; runs the test case, but produces (test-error) if test case does not finish before timeout-evt is ready
+  ;; intended to be used with alarm-evt, i.e.
+  ;; (run-test-case/timeout name action (alarm-evt (+ (current-inexact-milliseconds) 2500))
+  (define (run-test-case/timeout name action)
+    (define eng (engine (lambda (b) (run-test-case name action))))
+    (if (engine-run (* 1000 (timeout-in-seconds)) eng)
+        (engine-result eng)
+        (test-error name (exn:fail "Execution timed out" (current-continuation-marks)))))
+
+  (let* ([test-results (fold-test-results add-result init-state test-suite
+                                          #:run run-test-case/timeout
+                                          #:fdown push-suite-name
+                                          #:fup pop-suite-name)]
          [raw-score (* 100
                        (/ (length (fold-state-successes test-results))
                           (fold-state-total-results test-results)))]
@@ -167,32 +178,4 @@
                                                                          test-case-name
                                                                          "»"))]
                                                   [else "Incorrect answer from unnamed test"]))))
-                                 (fold-state-failures test-results))))))))
-
-
-
-;; call/timeout : {X} [-> X] -> X
-;; produces the result of calling the given thunk, but sends a user break after timeout-in-seconds
-;; timeout is determined by provided parameter timeout-in-seconds, if #f then call/timeout just calls proc
-(define (call/timeout proc)
-
-  ;; call-proc/timeout : -> ()
-  ;; ASSUMES: (timeout-in-seconds) is a number (not #f)
-  (define (call-proc/timeout)
-    ;; async channel allows non-blocking test suites to succeed immediately
-    (define results-channel (make-async-channel 1))
-    (define thd (thread (λ () (async-channel-put results-channel (proc)))))
-    (sync/timeout (timeout-in-seconds) thd)
-    (async-channel-try-get-break results-channel thd))
-
-  ;; async-channel-try-get-break : AsyncChannel Thread -> Any
-  ;; attempts to try-get from a channel, otherwise breaks the given thread and gets
-  (define (async-channel-try-get-break channel thd)
-    (or (async-channel-try-get channel)
-        ; otherwise, the test suite is hanging: break the thread and force results
-        (begin
-          (break-thread thd)
-          (begin0 (async-channel-get channel)
-                  (thread-wait thd)))))
-
-  (if (timeout-in-seconds) (call-proc/timeout) (proc)))
+                               (fold-state-failures test-results))))))))
