@@ -3,10 +3,16 @@
 (require lang/prim)
 (require rackunit)
 (require json)
+(require racket/engine)
 
-(provide produce-report/exit define-var generate-results)
+(provide produce-report/exit define-var generate-results test-case-timeout)
 
 (provide mirror-macro)
+
+;; test-case-timeout determines maximum amount of time an individual test-case may run in seconds
+(define test-case-timeout (make-parameter #f))
+
+(struct test-timeout test-result () #:transparent)
 
 (define (produce-report/exit grade-hash)
   (with-output-to-file "/autograder/results/results.json"
@@ -74,9 +80,9 @@
                           (output . ,(string-append "File " bfn " not found: please check your submission"))))))]))]))
 
 (define (generate-results test-suite)
-  (struct fold-state (successes errors failures names) #:transparent)
+  (struct fold-state (successes errors failures timeouts names) #:transparent)
 
-  (define init-state (fold-state (list) (list) (list) (list)))
+  (define init-state (fold-state (list) (list) (list) (list) (list)))
 
   (define (push-suite-name name state)
     (struct-copy fold-state state [names (cons name (fold-state-names state))]))
@@ -111,9 +117,16 @@
                  state
                  [successes (cons (make-name state result)
                                   (fold-state-successes state))]))
+  (define (add-timeout state result)
+    (struct-copy fold-state
+                 state
+                 [timeouts (cons (make-name state result)
+                                  (fold-state-successes state))]))
 
   (define (add-result result state)
     (cond
+      [(test-timeout? result)
+       (add-timeout state result)]
       [(test-failure? result)
        (add-failure state result)]
       [(test-error? result)
@@ -125,9 +138,20 @@
     (+
      (length (fold-state-successes state))
      (length (fold-state-errors state))
-     (length (fold-state-failures state))))
+     (length (fold-state-failures state))
+     (length (fold-state-timeouts state))))
+
+
+  ;; run-test-case/timeout : (U String #f) [-> Any] -> (U TestResult TestTimeout)
+  ;; runs the test case, but produces test-timeout if test case does not finish in time
+  (define (run-test-case/timeout name action)
+    (define eng (engine (lambda (_) (run-test-case name action))))
+    (if (engine-run (* (test-case-timeout) 1000) eng)
+                       (engine-result eng)
+                       (test-timeout name)))
 
   (let* ([test-results (fold-test-results add-result init-state test-suite
+                                          #:run (if (test-case-timeout) run-test-case/timeout run-test-case)
                                           #:fdown push-suite-name
                                           #:fup pop-suite-name)]
          [raw-score (* 100
@@ -141,6 +165,16 @@
         (produce-report/exit
          `#hasheq((score . ,score-str)
                   (tests . ,(append
+                             (map (λ (name)
+                                    `#hasheq((output
+                                              . ,(cond
+                                                   [name =>
+                                                    (lambda (test-case-name)
+                                                      (string-append "Execution timed out in test named «"
+                                                                     test-case-name
+                                                                     "»"))]
+                                                   [else "Execution timed out in unnamed test"]))))
+                                  (fold-state-timeouts test-results))
                              (map (λ (name)
                                     `#hasheq((output
                                               . ,(cond
