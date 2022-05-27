@@ -127,7 +127,7 @@
     (struct-copy fold-state
                  state
                  [timeouts (cons (make-name state result)
-                                  (fold-state-successes state))]))
+                                  (fold-state-timeouts state))]))
 
   (define (add-result result state)
     (cond
