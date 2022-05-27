@@ -5,7 +5,8 @@
 (require json)
 (require racket/engine)
 
-(provide produce-report/exit define-var generate-results test-case-timeout)
+
+(provide produce-report/exit define-var generate-results generate-results/hash test-case-timeout)
 
 (provide mirror-macro)
 
@@ -28,7 +29,7 @@
        (with-handlers ([exn:fail?
                         (lambda (e)
                           (produce-report/exit
-                           `#hasheq((score . 0)
+                           `#hasheq((score . "0")
                                     (output . ,(string-append "Run failed with error\n"
                                                               (exn-message e))))))])
          (define bfn base-filename)
@@ -37,7 +38,7 @@
              (with-handlers ([exn:fail?
                               (lambda (e)
                                 (produce-report/exit
-                                 `#hasheq((score . 0)
+                                 `#hasheq((score . "0")
                                           (output . ,(string-append "Loading failed with error\n"
                                                                     (exn-message e))))))])
                (dynamic-require `(file ,filename) 'var-name
@@ -46,7 +47,7 @@
                                  (define ns (module->namespace `(file ,filename)))
                                  (eval `(,#'first-order->higher-order var-name) ns))))
              (produce-report/exit
-              `#hasheq((score . 0)
+              `#hasheq((score . "0")
                        (output . ,(string-append "File " bfn " not found: please check your submission")))))))]))
 
 (define-syntax mirror-macro
@@ -58,7 +59,7 @@
           (with-handlers ([exn:fail?
                            (lambda (e)
                              (produce-report/exit
-                              `#hasheq((score . 0)
+                              `#hasheq((score . "0")
                                        (output . ,(string-append "Run failed with error\n"
                                                                  (exn-message e))))))])
             (define bfn base-filename)
@@ -67,7 +68,7 @@
                 (with-handlers ([exn:fail?
                                  (lambda (e)
                                    (produce-report/exit
-                                    `#hasheq((score . 0)
+                                    `#hasheq((score . "0")
                                              (output . ,(string-append "Loading failed with error\n"
                                                                        (exn-message e))))))])
                   (eval '(macro-name E (... ...))
@@ -76,10 +77,15 @@
                            (dynamic-require `(file , filename) #f)
                            `(file ,filename)))))
                 (produce-report/exit
-                 `#hasheq((score . 0)
+                 `#hasheq((score . "0")
                           (output . ,(string-append "File " bfn " not found: please check your submission"))))))]))]))
 
 (define (generate-results test-suite)
+  (produce-report/exit
+   (generate-results/hash
+    test-suite)))
+
+(define (generate-results/hash test-suite)
   (struct fold-state (successes errors failures timeouts names) #:transparent)
 
   (define init-state (fold-state (list) (list) (list) (list) (list)))
@@ -159,13 +165,11 @@
                           (fold-state-total-results test-results)))]
          [score-str (number->string (exact->inexact raw-score))])
     (if (= raw-score 100)
-        (produce-report/exit
-         `#hasheq((score . "100")
-                  (output . "Looks shipshape, all tests passed, mate!")))
-        (produce-report/exit
-         `#hasheq((score . ,score-str)
-                  (tests . ,(append
-                             (map (λ (name)
+        `#hasheq((score . "100")
+                 (output . "Looks shipshape, all tests passed, mate!"))
+        `#hasheq((score . ,score-str)
+                 (tests . ,(append
+                            (map (λ (name)
                                     `#hasheq((output
                                               . ,(cond
                                                    [name =>
@@ -175,23 +179,23 @@
                                                                      "»"))]
                                                    [else "Execution timed out in unnamed test"]))))
                                   (fold-state-timeouts test-results))
-                             (map (λ (name)
-                                    `#hasheq((output
-                                              . ,(cond
-                                                   [name =>
-                                                    (lambda (test-case-name)
-                                                      (string-append "Execution error in test named «"
-                                                                     test-case-name
-                                                                     "»"))]
-                                                   [else "Execution error in unnamed test"]))))
-                                  (fold-state-errors test-results))
-                             (map (λ (name)
-                                    `#hasheq((output
-                                              . ,(cond
-                                                   [name =>
-                                                    (lambda (test-case-name)
-                                                      (string-append "Incorrect answer from test named «"
-                                                                     test-case-name
-                                                                     "»"))]
-                                                   [else "Incorrect answer from unnamed test"]))))
-                                  (fold-state-failures test-results)))))))))
+                            (map (λ (name)
+                                   `#hasheq((output
+                                             . ,(cond
+                                                  [name =>
+                                                        (lambda (test-case-name)
+                                                          (string-append "Execution error in test named «"
+                                                                         test-case-name
+                                                                         "»"))]
+                                                  [else "Execution error in unnamed test"]))))
+                                 (fold-state-errors test-results))
+                            (map (λ (name)
+                                   `#hasheq((output
+                                             . ,(cond
+                                                  [name =>
+                                                        (lambda (test-case-name)
+                                                          (string-append "Incorrect answer from test named «"
+                                                                         test-case-name
+                                                                         "»"))]
+                                                  [else "Incorrect answer from unnamed test"]))))
+                                 (fold-state-failures test-results))))))))
