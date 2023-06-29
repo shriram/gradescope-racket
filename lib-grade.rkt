@@ -6,7 +6,9 @@
 (require racket/engine)
 
 
-(provide produce-report/exit define-var generate-results generate-results/hash test-case-timeout)
+(require (for-syntax syntax/parse))
+
+(provide produce-report/exit set-submission-directory! set-results-path! set-autodetect-extension! define-var generate-results generate-results/hash test-case-timeout)
 
 (provide mirror-macro)
 
@@ -15,40 +17,84 @@
 
 (struct test-timeout test-result () #:transparent)
 
+
+;; This is mostly useful for testing, where if it is #f,
+;; we print to the current port
+(define results-path "/autograder/results/results.json")
+
+(define (set-results-path! pth)
+  (set! results-path pth))
+
 (define (produce-report/exit grade-hash)
-  (with-output-to-file "/autograder/results/results.json"
-    #:exists 'replace
-    (lambda ()
-      (write-json grade-hash)))
+  (if results-path
+      (with-output-to-file results-path
+        #:exists 'replace
+        (lambda ()
+          (write-json grade-hash)))
+      (write-json grade-hash))
   (exit))
 
-(define-syntax define-var
-  (syntax-rules (from)
-    [(_ var-name from base-filename)
-     (define var-name
-       (with-handlers ([exn:fail?
-                        (lambda (e)
-                          (produce-report/exit
-                           `#hasheq((score . "0")
-                                    (output . ,(string-append "Run failed with error\n"
-                                                              (exn-message e))))))])
-         (define bfn base-filename)
-         (define filename (string-append "/autograder/submission/" bfn))
-         (if (file-exists? filename)
+;; When using define-var without specifying filename, this controls
+;; what file extension to look for.
+(define autodetect-extension ".rkt")
+(define autodetected-file #f)
+
+(define (set-autodetect-extension! ext)
+  (set! autodetect-extension ext)
+  (set! autodetected-file #f))
+
+;; This is mostly useful for testing, where you don't want
+;; to have to put things into /autograder/submission!
+(define submission-directory "/autograder/submission/")
+
+(define (set-submission-directory! dir)
+  (set! submission-directory dir))
+
+
+(define (autodetect-file)
+  (if autodetected-file autodetected-file
+      (let [(fs (filter (lambda (f) (string-suffix? f autodetect-extension))
+                        (map path->string
+                             (directory-list submission-directory))))]
+        (if (empty? fs)
+            (produce-report/exit
+              `#hasheq((score . "0")
+                       (output . ,(string-append "File with extension " autodetect-extension " not found: please check your submission"))))
+            (begin (set! autodetected-file (string-append submission-directory
+                                                          (first fs)))
+                   autodetected-file)))))
+
+(define-syntax (define-var stx)
+  (syntax-parse stx 
+      [(_ var-name (~optional (~literal from)) (~optional base-filename))
+       #'(define var-name
+           (let [(bfn (~? base-filename
+                          (autodetect-file)))
+                 (filename (~? (string-append submission-directory
+                                              base-filename)
+                               (autodetect-file)))]
              (with-handlers ([exn:fail?
                               (lambda (e)
                                 (produce-report/exit
                                  `#hasheq((score . "0")
-                                          (output . ,(string-append "Loading failed with error\n"
+                                          (output . ,(string-append "Run failed with error\n"
                                                                     (exn-message e))))))])
-               (dynamic-require `(file ,filename) 'var-name
-                                (thunk
-                                 (dynamic-require `(file ,filename) #f)
-                                 (define ns (module->namespace `(file ,filename)))
-                                 (eval `(,#'first-order->higher-order var-name) ns))))
-             (produce-report/exit
-              `#hasheq((score . "0")
-                       (output . ,(string-append "File " bfn " not found: please check your submission")))))))]))
+               (if (file-exists? filename)
+                   (with-handlers ([exn:fail?
+                                    (lambda (e)
+                                      (produce-report/exit
+                                       `#hasheq((score . "0")
+                                                (output . ,(string-append "Loading failed with error\n"
+                                                                          (exn-message e))))))])
+                     (dynamic-require `(file ,filename) 'var-name
+                                      (thunk
+                                       (dynamic-require `(file ,filename) #f)
+                                       (define ns (module->namespace `(file ,filename)))
+                                    (eval `(,#'first-order->higher-order var-name) ns))))
+                   (produce-report/exit
+                    `#hasheq((score . "0")
+                             (output . ,(string-append "File " bfn " not found: please check your submission"))))))))]))
+  
 
 (define-syntax mirror-macro
   (syntax-rules (from)
