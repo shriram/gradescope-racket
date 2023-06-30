@@ -8,7 +8,7 @@
 
 (require (for-syntax syntax/parse))
 
-(provide produce-report/exit set-submission-directory! set-results-path! set-autodetect-extension! define-var generate-results generate-results/hash test-case-timeout)
+(provide produce-report/exit  define-var generate-results generate-results/hash test-case-timeout submission-directory results-path autodetect-extension)
 
 (provide mirror-macro)
 
@@ -20,14 +20,12 @@
 
 ;; This is mostly useful for testing, where if it is #f,
 ;; we print to the current port
-(define results-path "/autograder/results/results.json")
+(define results-path (make-parameter "/autograder/results/results.json"))
 
-(define (set-results-path! pth)
-  (set! results-path pth))
 
 (define (produce-report/exit grade-hash)
-  (if results-path
-      (with-output-to-file results-path
+  (if (results-path)
+      (with-output-to-file (results-path)
         #:exists 'replace
         (lambda ()
           (write-json grade-hash)))
@@ -36,43 +34,35 @@
 
 ;; When using define-var without specifying filename, this controls
 ;; what file extension to look for.
-(define autodetect-extension ".rkt")
+(define autodetect-extension (make-parameter ".rkt"))
 (define autodetected-file #f)
-
-(define (set-autodetect-extension! ext)
-  (set! autodetect-extension ext)
-  (set! autodetected-file #f))
 
 ;; This is mostly useful for testing, where you don't want
 ;; to have to put things into /autograder/submission!
-(define submission-directory "/autograder/submission/")
-
-(define (set-submission-directory! dir)
-  (set! submission-directory dir))
+(define submission-directory (make-parameter "/autograder/submission/"))
 
 
 (define (autodetect-file)
-  (if autodetected-file autodetected-file
-      (let [(fs (filter (lambda (f) (string-suffix? f autodetect-extension))
+  (if (and autodetected-file
+           (string-suffix? autodetected-file (autodetect-extension)))
+      autodetected-file
+      (let [(fs (filter (lambda (f) (string-suffix? f (autodetect-extension)))
                         (map path->string
-                             (directory-list submission-directory))))]
+                             (directory-list (submission-directory)))))]
         (if (empty? fs)
             (produce-report/exit
               `#hasheq((score . "0")
-                       (output . ,(string-append "File with extension " autodetect-extension " not found: please check your submission"))))
-            (begin (set! autodetected-file (string-append submission-directory
-                                                          (first fs)))
+                       (output . ,(string-append "File with extension " (autodetect-extension) " not found: please check your submission"))))
+            (begin (set! autodetected-file (first fs))
                    autodetected-file)))))
 
 (define-syntax (define-var stx)
   (syntax-parse stx 
       [(_ var-name (~optional (~literal from)) (~optional base-filename))
        #'(define var-name
-           (let [(bfn (~? base-filename
+           (let* [(bfn (~? base-filename
                           (autodetect-file)))
-                 (filename (~? (string-append submission-directory
-                                              base-filename)
-                               (autodetect-file)))]
+                 (filename (string-append (submission-directory) bfn))]
              (with-handlers ([exn:fail?
                               (lambda (e)
                                 (produce-report/exit
