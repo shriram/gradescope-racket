@@ -196,9 +196,11 @@
                                           #:run (if (test-case-timeout) run-test-case/timeout run-test-case)
                                           #:fdown push-suite-name
                                           #:fup pop-suite-name)]
-         [raw-score (* 100
-                       (/ (length (fold-state-successes test-results))
-                          (fold-state-total-results test-results)))]
+         [raw-score (if (zero? (fold-state-total-results test-results))
+                        100
+                        (* 100
+                           (/ (length (fold-state-successes test-results))
+                              (fold-state-total-results test-results))))]
          [score-str (number->string (exact->inexact raw-score))])
     (if (= raw-score 100)
         `#hasheq((score . "100")

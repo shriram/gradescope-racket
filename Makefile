@@ -41,3 +41,9 @@ gradescope-$(a).zip: grade.rkt
 	tail -n +2 Dockerfile.base-image | cut -f 2- -d ' ' >> setup.sh
 	zip -r upload-to-gradescope.zip setup.sh run_autograder grade.rkt lib-grade.rkt
 
+clean:
+	- rm -rf autograder
+	- rm -f setup.sh
+	- rm -f gradescope-$(a).zip
+	- rm -f grade.rkt
+	- rm -f upload-to-gradescope.zip
