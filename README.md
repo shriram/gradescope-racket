@@ -220,14 +220,28 @@ number of tests. That's it. Someday I may look into adding weights for
 tests, etc., but I'm really not excited about any of it. Either way,
 please give your students instructions on how to interpret the numbers.
 
+## Settings for newer Apple Macs and other Alternative Platforms
+
+On [Apple Silicon][how-to-tell] or other arm64 based architectures,
+these Docker images will not build correctly, because the
+`gradescope-base` images expect an amd64 platform. To work around
+this, users will need to either
+
+- Set the `DOCKER_DEFAULT_PLATFORM` environment variable (permanently
+  by adding `export DOCKER_DEFAULT_PLATFORM=linux/amd64` to your
+  `bashrc`) or
+- If you regularly use Docker for other purposes, you could add to the
+  flag `--platform=linux/amd64` to the `docker build` and `docker run`
+  commands in the `Makefile`.
+
 ## Open Issues
 
 See <https://github.com/shriram/gradescope-racket/issues/>.
 
 ## Is This Current?
 
-This code has been tested with Gradescope in late May 23, 2020, using
-Racket 7.7. Since Gradescope's APIs are in some flux, you may
+This code has been tested with Gradescope in late August 30, 2024, using
+Racket 8.14. Since Gradescope's APIs are in some flux, you may
 encounter errors with newer versions; contact me and I'll try to
 help. In addition, Gradescope intends to make it easier to deploy
 autograders using Docker; when that happens, it would be nice to
@@ -251,3 +265,5 @@ Gradescope's "specs" are currently at:
 
 Thanks to Matthew Flatt, Alex Harsanyi, David Storrs, Alexis King,
 Matthias Felleisen, Joe Politz, and James Tompkin.
+
+[how-to-tell]: https://support.apple.com/en-us/116943
